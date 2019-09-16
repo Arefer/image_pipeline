@@ -16,6 +16,40 @@ void Image_load(Image *img, const char *fname) {
     }
 }
 
+/**
+ * Separa los canales de una imagen. Almacena cada canal en channels_data como una matriz.
+ * @param img = estructura (Image) que representa a la imagen
+ * No posee salidas
+ */
+void separate_channels(Image* img){
+    img->channels_data = (uint8_t***)malloc(sizeof(uint8_t**)*img->channels);
+    // Reservar memoria para cada canal
+    for (int c=0; c<img->channels; c++){
+        img->channels_data[c] = (uint8_t**)malloc(sizeof(uint8_t*)*img->height);
+        for (int i=0; i<img->height; i++){
+            img->channels_data[c][i] = (uint8_t*)malloc(sizeof(uint8_t)*img->width);
+        }
+    }
+
+    int i = 0;
+    int j = 0;
+    int k = 0;
+
+    while (k < img->size){
+        // Si se recorre la fila completa, pasar a la siguiente
+        if (j == img->width){
+            j = 0;
+            i += 1;
+        }
+        // Iterar sobre los canales del pixel actual
+        for (int c=0; c<img->channels; c++){
+            img->channels_data[c][i][j] = img->data[k];
+            k ++;
+        }
+        j++;
+    }
+}
+
 void Image_create(Image *img, int width, int height, int channels, bool zeroed) {
     size_t size = width * height * channels;
     if(zeroed) {
@@ -51,6 +85,16 @@ void Image_free(Image *img) {
         } else {
             free(img->data);
         }
+        // Liberar la memoria de los canales
+        if (img->channels_data != NULL){
+            for (int c=0; c<img->channels; c++){
+                for (int row=0; row<img->height; row++){
+                    free(img->channels_data[c][row]);
+                }
+                free(img->channels_data[c]);
+            }
+        }
+        free(img->channels_data);
         img->data = NULL;
         img->width = 0;
         img->height = 0;
