@@ -79,14 +79,16 @@ void pooling(Image* img, int i, int j){
  * @return
  */
 int nearlyBlack(Image* img, int u){
-    // Separar las capas de la imagen si es que no lo estan
-    if (img->channels_data == NULL) separate_channels(img);
 
     // Contar los pixeles negros (0,0,0) RGB
     int blackPixels = 0;
     int i = 0;
-    while (i < img->size/img->channels){
-        if (img->channels_data[0] == 0 && img->channels_data[1] == 0 && img->channels_data[2] == 0){
+    int red, green, blue;
+    while (i < img->size - img->channels){
+        red = img->data[i];
+        green = img->data[i+1];
+        blue = img->data[i+2];
+        if (red == 0 && green == 0 && blue == 0){
             blackPixels += 1;
         }
         i += 1;
