@@ -50,6 +50,51 @@ void separate_channels(Image* img){
     }
 }
 
+void pooling(Image* img, int i, int j){
+    // Separar las capas de la imagen si es que no lo estan
+    if (img->channels_data == NULL) separate_channels(img);
+
+    // Crear una matriz por cada capa
+    uint8_t*** channels = (uint8_t***)malloc(sizeof(uint8_t**)*img->channels);
+    for (int c = 0; c < img->channels; c++){
+        channels[c] = (uint8_t**)malloc(sizeof(uint8_t*)*img->height);
+        for (int row=0; row<img->height; row++){
+            img->channels_data[c][row] = (uint8_t*)malloc(sizeof(uint8_t)*img->width);
+        }
+    }
+
+    int done = 0;
+    int row = 0;
+    int column = 0;
+    while (row+i < img->height && column+j < img->width){
+        // Si llegue a la ultima columna posible, pasar a la siguiente fila
+        if (column+j >= img->width) break;
+    }
+}
+
+/**
+ * Determina si una imagen es nearly black. Retorna 1 en caso positivo, 0 en caso negativo.
+ * @param img
+ * @param u
+ * @return
+ */
+int nearlyBlack(Image* img, int u){
+    // Separar las capas de la imagen si es que no lo estan
+    if (img->channels_data == NULL) separate_channels(img);
+
+    // Contar los pixeles negros (0,0,0) RGB
+    int blackPixels = 0;
+    int i = 0;
+    while (i < img->size/img->channels){
+        if (img->channels_data[0] == 0 && img->channels_data[1] == 0 && img->channels_data[2] == 0){
+            blackPixels += 1;
+        }
+        i += 1;
+    }
+
+    return blackPixels > u ? 1 : 0;
+}
+
 void Image_create(Image *img, int width, int height, int channels, bool zeroed) {
     size_t size = width * height * channels;
     if(zeroed) {
