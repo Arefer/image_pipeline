@@ -9,26 +9,38 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../stb_image/stb_image_write.h"
 
-void Image_load(Image *img, const char *fname) {
+void load_image(Image *img, const char *fname) {
     if((img->data = stbi_load(fname, &img->width, &img->height, &img->channels, 0)) != NULL) {
         img->size = img->width * img->height * img->channels;
-        img->allocation_ = STB_ALLOCATED;
     }
 }
 
+Image* copy_image(Image* img){
+    Image* new_image = (Image*)malloc(sizeof(Image));
+    new_image->width = img->width;
+    new_image->height = img->height;
+    new_image->channels = img->channels;
+    new_image->size = img->size;
+    new_image->data = (uint8_t*)malloc(sizeof(uint8_t)*new_image->size);
+    new_image->pixel_matrix = (Pixel**)malloc(sizeof(Pixel*)*new_image->height);
+    for (int i=0; i<new_image->height; i++){
+        new_image->pixel_matrix[i] = (Pixel*)malloc(sizeof(Pixel)*new_image->width);
+        for (int j=0; j<new_image->width; j++){
+            new_image->pixel_matrix[i][j] = img->pixel_matrix[i][j];
+        }
+    }
+    return new_image;
+}
 /**
- * Separa los canales de una imagen. Almacena cada canal en channels_data como una matriz.
+ * Separa los canales de una imagen. Guarda los datos con una matriz de pixeles.
  * @param img = estructura (Image) que representa a la imagen
- * No posee salidas
+ * Sin salida
  */
 void separate_channels(Image* img){
-    img->channels_data = (uint8_t***)malloc(sizeof(uint8_t**)*img->channels);
-    // Reservar memoria para cada canal
-    for (int c=0; c<img->channels; c++){
-        img->channels_data[c] = (uint8_t**)malloc(sizeof(uint8_t*)*img->height);
-        for (int i=0; i<img->height; i++){
-            img->channels_data[c][i] = (uint8_t*)malloc(sizeof(uint8_t)*img->width);
-        }
+    // Reservar memoria para cada pixel
+    img->pixel_matrix = (Pixel**)malloc(sizeof(Pixel*)*img->height);
+    for (int i=0; i<img->height; i++){
+        img->pixel_matrix[i] = (Pixel*)malloc(sizeof(Pixel)*img->width);
     }
 
     int i = 0;
@@ -42,32 +54,44 @@ void separate_channels(Image* img){
             i += 1;
         }
         // Iterar sobre los canales del pixel actual
-        for (int c=0; c<img->channels; c++){
-            img->channels_data[c][i][j] = img->data[k];
-            k ++;
-        }
+        Pixel* pixel = &img->pixel_matrix[i][j];
+        pixel->r = img->data[k];
+        pixel->g = img->data[k+1];
+        pixel->b = img->data[k+2];
+        k+=3;
+
         j++;
     }
 }
+/**
+ * Libera el areglo data de la Imagen y reemplaza sus valores por los presentes en pixel_matrix.
+ * @param img : imagen a procesar.
+ * Sin salida.
+ */
+void join_channels(Image* img){
+    free(img->data);
+    img->data = (uint8_t*)malloc(sizeof(uint8_t)*img->size);
 
-void Image_create(Image *img, int width, int height, int channels, bool zeroed) {
-    size_t size = width * height * channels;
-    if(zeroed) {
-        img->data = calloc(size, 1);
-    } else {
-        img->data = malloc(size);
-    }
+    int row_index = 0;
+    int column_index = 0;
 
-    if(img->data != NULL) {
-        img->width = width;
-        img->height = height;
-        img->size = size;
-        img->channels = channels;
-        img->allocation_ = SELF_ALLOCATED;
+    int value = 0;
+    while (value<img->size){
+        if (column_index == img->width){
+            column_index = 0;
+            row_index++;
+        }
+        Pixel* pixel = &img->pixel_matrix[row_index][column_index];
+        img->data[value] = pixel->r;
+        img->data[value+1] = pixel->g;
+        img->data[value+2] = pixel->b;
+        value += 3;
+
+        column_index++;
     }
 }
 
-void Image_save(const Image *img, const char *fname) {
+void save_image(const Image *img, const char *fname) {
     // Check if the file name ends in one of the .jpg/.JPG/.jpeg/.JPEG or .png/.PNG
     if(str_ends_in(fname, ".jpg") || str_ends_in(fname, ".JPG") || str_ends_in(fname, ".jpeg") || str_ends_in(fname, ".JPEG")) {
         stbi_write_jpg(fname, img->width, img->height, img->channels, img->data, 100);
@@ -78,57 +102,18 @@ void Image_save(const Image *img, const char *fname) {
     }
 }
 
-void Image_free(Image *img) {
-    if(img->allocation_ != NO_ALLOCATION && img->data != NULL) {
-        if(img->allocation_ == STB_ALLOCATED) {
-            stbi_image_free(img->data);
-        } else {
-            free(img->data);
+void free_image(Image *img) {
+    if (img->data != NULL) free(img->data);
+    // Liberar la memoria de la matriz de pixeles
+    if (img->pixel_matrix != NULL){
+        for (int i=0; i<img->height; i++) {
+            free(img->pixel_matrix[i]);
         }
-        // Liberar la memoria de los canales
-        if (img->channels_data != NULL){
-            for (int c=0; c<img->channels; c++){
-                for (int row=0; row<img->height; row++){
-                    free(img->channels_data[c][row]);
-                }
-                free(img->channels_data[c]);
-            }
-        }
-        free(img->channels_data);
-        img->data = NULL;
-        img->width = 0;
-        img->height = 0;
-        img->size = 0;
-        img->allocation_ = NO_ALLOCATION;
+        free(img->pixel_matrix);
     }
+    img->data = NULL;
+    img->width = 0;
+    img->height = 0;
+    img->size = 0;
 }
 
-void Image_to_gray(const Image *orig, Image *gray) {
-    ON_ERROR_EXIT(!(orig->allocation_ != NO_ALLOCATION && orig->channels >= 3), "The input image must have at least 3 channels.");
-    int channels = orig->channels == 4 ? 2 : 1;
-    Image_create(gray, orig->width, orig->height, channels, false);
-    ON_ERROR_EXIT(gray->data == NULL, "Error in creating the image");
-
-    for(unsigned char *p = orig->data, *pg = gray->data; p != orig->data + orig->size; p += orig->channels, pg += gray->channels) {
-        *pg = (uint8_t)((*p + *(p + 1) + *(p + 2))/3.0);
-        if(orig->channels == 4) {
-            *(pg + 1) = *(p + 3);
-        }
-    }
-}
-
-void Image_to_sepia(const Image *orig, Image *sepia) {
-    ON_ERROR_EXIT(!(orig->allocation_ != NO_ALLOCATION && orig->channels >= 3), "The input image must have at least 3 channels.");
-    Image_create(sepia, orig->width, orig->height, orig->channels, false);
-    ON_ERROR_EXIT(sepia->data == NULL, "Error in creating the image");
-
-    // Sepia filter coefficients from https://stackoverflow.com/questions/1061093/how-is-a-sepia-tone-created
-    for(unsigned char *p = orig->data, *pg = sepia->data; p != orig->data + orig->size; p += orig->channels, pg += sepia->channels) {
-        *pg       = (uint8_t)fmin(0.393 * *p + 0.769 * *(p + 1) + 0.189 * *(p + 2), 255.0);         // red
-        *(pg + 1) = (uint8_t)fmin(0.349 * *p + 0.686 * *(p + 1) + 0.168 * *(p + 2), 255.0);         // green
-        *(pg + 2) = (uint8_t)fmin(0.272 * *p + 0.534 * *(p + 1) + 0.131 * *(p + 2), 255.0);         // blue
-        if(orig->channels == 4) {
-            *(pg + 3) = *(p + 3);
-        }
-    }
-}
