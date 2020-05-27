@@ -1,11 +1,11 @@
 CC=gcc
 CFLAGS=-c -Wall
 
-all: image
+all: image_build
 	$(CC) image/obj/image.o  main.c -o app -lm -g
 
-image: image/image.c
-	mkdir image/obj
+image_build: | image/image.c
+	if [ ! -d "image/obj" ]; then mkdir image/obj; fi
 	$(CC) $(CFLAGS) image/image.c -o image/obj/image.o -g
 
 clear:
