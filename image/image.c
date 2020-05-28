@@ -24,6 +24,31 @@ void load_image(Image *img, const char *fname) {
     }
 }
 
+Pixel* init_pixel(){
+    Pixel* p = (Pixel*)malloc(sizeof(Pixel));
+    p->gray = 0;
+    p->red = 0;
+    p->green = 0;
+    p->blue = 0;
+    p->alpha = 0;
+    return p;
+}
+
+void set_pixel_to_zero(Pixel* p){
+    p->gray = 0;
+    p->red = 0;
+    p->green = 0;
+    p->blue = 0;
+    p->alpha = 0;
+}
+
+
+uint8_t pixel_to_unsigned(int p){
+    if (p < 0) return 0;
+    if (p > 255) return 255;
+    return (uint8_t)p;
+}
+
 Image* copy_image(Image* img){
     Image* new_image = (Image*)malloc(sizeof(Image));
     new_image->type = img->type;
@@ -52,6 +77,9 @@ void separate_channels(Image* img){
     img->pixel_matrix = (Pixel**)malloc(sizeof(Pixel*)*img->height);
     for (int i=0; i<img->height; i++){
         img->pixel_matrix[i] = (Pixel*)malloc(sizeof(Pixel)*img->width);
+        for (int j=0; j<img->width; j++){
+            set_pixel_to_zero(&img->pixel_matrix[i][j]);
+        }
     }
 
     int i = 0;
@@ -59,7 +87,7 @@ void separate_channels(Image* img){
     int k = 0;
 
     while (k < img->size){
-        // Si se recorre la fila completa, pasar alpha la siguiente
+        // Si se recorre la fila completa, pasar a la siguiente
         if (j == img->width){
             j = 0;
             i += 1;

@@ -17,6 +17,14 @@ typedef struct {
 } Pixel;
 
 typedef struct {
+    int gray;
+    int red;
+    int green;
+    int blue;
+    int alpha;
+} SignedPixel;
+
+typedef struct {
     enum Image_type type;
     enum Image_format format;
     int width;
@@ -28,6 +36,9 @@ typedef struct {
 } Image;
 
 void load_image(Image *img, const char *fname);
+Pixel* init_pixel();
+void set_pixel_to_zero(Pixel* p);
+uint8_t pixel_to_unsigned(int p);
 Image* copy_image(Image* img);
 void separate_channels(Image* img);
 void join_channels(Image* img);
