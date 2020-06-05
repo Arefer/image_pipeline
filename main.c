@@ -13,7 +13,6 @@ int main(int argc, char *argv[]) {
     printf("Loaded image with a width of %dpx, a height of %dpx and %d channels\n", img->width, img->height, img->channels);
     printf("Format: %d\n", img->format);
     printf("Type: %d\n", img->type);
-    separate_channels(img);
     Mask* mask = (Mask*)malloc(sizeof(Mask));
     mask->columns = 3;
     mask->rows = 3;
@@ -41,6 +40,7 @@ int main(int argc, char *argv[]) {
 
     Image* binarized_laplacian = binarize_image(laplacian, 10);
     save_image(binarized_laplacian, "binarized.jpg");
+
     int n_black = nearly_black(binarized_laplacian, 50);
     printf("Nearly black: %d\n", n_black);
 

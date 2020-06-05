@@ -23,7 +23,6 @@ Image* image_to_gray_scale(Image* img){
     }
     new_image->size = new_image->height * new_image->width * new_image->channels;
     new_image->type = GRAY_SCALE;
-    join_channels(new_image);
     return new_image;
 }
 
@@ -123,7 +122,6 @@ Image* laplacian_filter(Image* img, Mask* mask){
             }
         }
     }
-    join_channels(new_image);
     return new_image;
 }
 
@@ -144,7 +142,6 @@ Image* binarize_image(Image* img, uint8_t threshold){
             *pixel = *pixel > threshold ? 255 : 0;
         }
     }
-    join_channels(new_img);
     return new_img;
 }
 

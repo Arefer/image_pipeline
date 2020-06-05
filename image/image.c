@@ -9,30 +9,23 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../stb_image/stb_image_write.h"
 
-void load_image(Image *img, const char *fname) {
-    if((img->data = stbi_load(fname, &img->width, &img->height, &img->channels, 0)) != NULL) {
+void load_image(Image *img, const char *file_path) {
+    uint8_t* data;
+    if((data = stbi_load(file_path, &img->width, &img->height, &img->channels, 0)) != NULL) {
         img->size = img->width * img->height * img->channels;
-        if(str_ends_in(fname, ".jpg") || str_ends_in(fname, ".JPG") || str_ends_in(fname, ".jpeg") ||
-            str_ends_in(fname, ".JPEG")) {
+        if(str_ends_in(file_path, ".jpg") || str_ends_in(file_path, ".JPG") || str_ends_in(file_path, ".jpeg") ||
+           str_ends_in(file_path, ".JPEG")) {
             img->format = JPG;
             if (img->channels == 1) img->type = GRAY_SCALE;
             else img->type = RGB;
-        } else if(str_ends_in(fname, ".png") || str_ends_in(fname, ".PNG")) {
+        } else if(str_ends_in(file_path, ".png") || str_ends_in(file_path, ".PNG")) {
             img->format = PNG;
             if (img->channels == 2) img->type = GRAY_SCALE;
             else img->type = RGB;
         }
+        data_to_pixels(img, data);
+        free(data);
     }
-}
-
-Pixel* init_pixel(){
-    Pixel* p = (Pixel*)malloc(sizeof(Pixel));
-    p->gray = 0;
-    p->red = 0;
-    p->green = 0;
-    p->blue = 0;
-    p->alpha = 0;
-    return p;
 }
 
 void set_pixel_to_zero(Pixel* p){
@@ -42,7 +35,6 @@ void set_pixel_to_zero(Pixel* p){
     p->blue = 0;
     p->alpha = 0;
 }
-
 
 uint8_t pixel_to_unsigned(int p){
     if (p < 0) return 0;
@@ -58,7 +50,6 @@ Image* copy_image(Image* img){
     new_image->height = img->height;
     new_image->channels = img->channels;
     new_image->size = img->size;
-    new_image->data = (uint8_t*)malloc(sizeof(uint8_t)*new_image->size);
     new_image->pixel_matrix = (Pixel**)malloc(sizeof(Pixel*)*new_image->height);
     for (int i=0; i<new_image->height; i++){
         new_image->pixel_matrix[i] = (Pixel*)malloc(sizeof(Pixel)*new_image->width);
@@ -73,7 +64,7 @@ Image* copy_image(Image* img){
  * @param img = estructura (Image) que representa a la imagen
  * Sin salida
  */
-void separate_channels(Image* img){
+void data_to_pixels(Image* img, const uint8_t* data){
     // Reservar memoria para cada pixel
     img->pixel_matrix = (Pixel**)malloc(sizeof(Pixel*)*img->height);
     for (int i=0; i<img->height; i++){
@@ -96,18 +87,18 @@ void separate_channels(Image* img){
         // Iterar sobre los canales del pixel actual
         Pixel* pixel = &img->pixel_matrix[i][j];
         if (img->type == RGB){
-            pixel->red = img->data[k];
-            pixel->green = img->data[k + 1];
-            pixel->blue = img->data[k + 2];
+            pixel->red = data[k];
+            pixel->green = data[k + 1];
+            pixel->blue = data[k + 2];
             if (img->format == JPG){
                 pixel->alpha = 0;
                 k += 3;
             } else if (img->format == PNG) {
-                pixel->alpha = img->data[k + 3];
+                pixel->alpha = data[k + 3];
                 k += 4;
             }
         } else if (img->type == GRAY_SCALE){
-            pixel->gray = img->data[k];
+            pixel->gray = data[k];
             pixel->red = 0;
             pixel->green = 0;
             pixel->blue = 0;
@@ -115,7 +106,7 @@ void separate_channels(Image* img){
                 pixel->alpha = 0;
                 k++;
             } else if (img->format == PNG){
-                pixel->alpha = img->data[k + 1];
+                pixel->alpha = data[k + 1];
                 k += 2;
             }
         }
@@ -127,9 +118,8 @@ void separate_channels(Image* img){
  * @param img : imagen a procesar.
  * Sin salida.
  */
-void join_channels(Image* img){
-    free(img->data);
-    img->data = (uint8_t*)malloc(sizeof(uint8_t)*img->size);
+uint8_t* pixels_to_array(Image* img){
+    uint8_t* data = (uint8_t*)malloc(sizeof(uint8_t)*img->size);
 
     int row_index = 0;
     int column_index = 0;
@@ -142,26 +132,27 @@ void join_channels(Image* img){
         }
         Pixel* pixel = &img->pixel_matrix[row_index][column_index];
         if (img->type == RGB){
-            img->data[k] = pixel->red;
-            img->data[k + 1] = pixel->green;
-            img->data[k + 2] = pixel->blue;
+            data[k] = pixel->red;
+            data[k + 1] = pixel->green;
+            data[k + 2] = pixel->blue;
             if (img->format == JPG){
                 k += 3;
             } else if (img->format == PNG) {
-                img->data[k + 3] = pixel->alpha;
+                data[k + 3] = pixel->alpha;
                 k += 4;
             }
         } else if (img->type == GRAY_SCALE){
-            img->data[k] = pixel->gray;
+            data[k] = pixel->gray;
             if (img->format == JPG){
                 k++;
             } else if (img->format == PNG){
-                img->data[k + 1] = pixel->alpha;
+                data[k + 1] = pixel->alpha;
                 k += 2;
             }
         }
         column_index++;
     }
+    return data;
 }
 
 /**
@@ -187,19 +178,21 @@ int nearly_black(Image* img, double threshold){
     return black_pixels_percentage >= threshold ? 1 : 0;
 }
 
-void save_image(const Image *img, const char *fname) {
+void save_image(Image *img, const char *file_path) {
+    uint8_t* data = pixels_to_array(img);
     // Check if the file name ends in one of the .jpg/.JPG/.jpeg/.JPEG or .png/.PNG
     if(img->format == JPG) {
-        stbi_write_jpg(fname, img->width, img->height, img->channels, img->data, 100);
+        stbi_write_jpg(file_path, img->width, img->height, img->channels, data, 100);
     } else if(img->format == PNG) {
-        stbi_write_png(fname, img->width, img->height, img->channels, img->data, img->width * img->channels);
+        stbi_write_png(file_path, img->width, img->height, img->channels, data, img->width * img->channels);
     } else {
+        free(data);
         ON_ERROR_EXIT(false, "");
     }
+    free(data);
 }
 
 void free_image(Image *img) {
-    if (img->data != NULL) free(img->data);
     // Liberar la memoria de la matriz de pixeles
     if (img->pixel_matrix != NULL){
         for (int i=0; i<img->height; i++) {
@@ -207,7 +200,6 @@ void free_image(Image *img) {
         }
         free(img->pixel_matrix);
     }
-    img->data = NULL;
     img->width = 0;
     img->height = 0;
     img->size = 0;
