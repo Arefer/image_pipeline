@@ -40,7 +40,7 @@ Image* image_to_gray_scale(Image* img){
 Pixel mask_image_pixel(Image* img, int i, int j, Mask* mask, int* success){
     Pixel empty;
     set_pixel_to_zero(&empty);
-    // Retornar NULL si los indices estan fuera de la imagen
+    // Retornar pixel negro si los indices estan fuera de la imagen. Indicar error en success
     if (i < 0 || i >= img->height || j < 0 || j >= img->width) {
         *success = 0;
         return empty;
@@ -55,13 +55,13 @@ Pixel mask_image_pixel(Image* img, int i, int j, Mask* mask, int* success){
     // Pixeles hacia abajo necesarios
     int pixels_needed_below = mask->v_center;
 
-    int j_min, j_max, i_min, i_max;
-    j_min = j - pixels_needed_left;
-    j_max = j + pixels_needed_right;
+    int i_min, i_max, j_min, j_max;
     i_min = i - pixels_needed_above;
     i_max = i + pixels_needed_below;
+    j_min = j - pixels_needed_left;
+    j_max = j + pixels_needed_right;
 
-    // Calcular el nuevo pixel en caso de que la mascara "quepa"
+    // Nuevo pixel para ir almacenando el resultado de las sumas
     SignedPixel new_pixel;
     new_pixel.gray = 0;
     new_pixel.red = 0;
@@ -95,13 +95,13 @@ Pixel mask_image_pixel(Image* img, int i, int j, Mask* mask, int* success){
         }
     } while (img_i <= i_max);
 
-    *success = 1;
     Pixel unsigned_pixel;
     unsigned_pixel.gray = pixel_to_unsigned(new_pixel.gray);
     unsigned_pixel.red = pixel_to_unsigned(new_pixel.red);
     unsigned_pixel.green = pixel_to_unsigned(new_pixel.green);
     unsigned_pixel.blue = pixel_to_unsigned(new_pixel.blue);
-    unsigned_pixel.alpha = pixel_to_unsigned(new_pixel.alpha);
+    unsigned_pixel.alpha = img->pixel_matrix[i][j].alpha;
+    *success = 1;
     return unsigned_pixel;
 }
 
