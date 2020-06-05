@@ -55,16 +55,11 @@ Pixel mask_image_pixel(Image* img, int i, int j, Mask* mask, int* success){
     // Pixeles hacia abajo necesarios
     int pixels_needed_below = mask->v_center;
 
-    int h_min, h_max, v_min, v_max;
-    h_min = j - pixels_needed_left;
-    h_max = j + pixels_needed_right;
-    v_min = i - pixels_needed_above;
-    v_max = i + pixels_needed_below;
-    // No realizar la mascara si se sobrepasa de los limites posibles
-    if (v_min < 0 || v_max >= img->height || h_min < 0 || h_max >= img->width) {
-        *success = 0;
-        return empty;
-    }
+    int j_min, j_max, i_min, i_max;
+    j_min = j - pixels_needed_left;
+    j_max = j + pixels_needed_right;
+    i_min = i - pixels_needed_above;
+    i_max = i + pixels_needed_below;
 
     // Calcular el nuevo pixel en caso de que la mascara "quepa"
     SignedPixel new_pixel;
@@ -73,24 +68,33 @@ Pixel mask_image_pixel(Image* img, int i, int j, Mask* mask, int* success){
     new_pixel.green = 0;
     new_pixel.blue = 0;
     new_pixel.alpha = 0;
-    //set_pixel_to_zero(&new_pixel);
-    for (int mask_i = 0, img_i = v_min, mask_j = 0, img_j = h_min; mask_i < mask->rows; mask_j++, img_j++){
-        // Pasar a una nueva fila una vez se llegue al final de las columnas
-        if (mask_j == mask->columns) {
+
+    int mask_i = 0, img_i = i_min;
+    int mask_j = 0, img_j = j_min;
+    do {
+        Pixel img_pixel;
+        // Considerar el pixel desbordado como 0
+        if (img_i < 0 || img_i >= img->height || img_j < 0 || img_j >= img->width) set_pixel_to_zero(&img_pixel);
+        else img_pixel = img->pixel_matrix[img_i][img_j];
+
+        // Multiplicar cada canal del pixel por la cantidad indicada en la mascara y sumarlo al valor actual
+        new_pixel.gray = new_pixel.gray + img_pixel.gray * mask->matrix[mask_i][mask_j];
+        new_pixel.red = new_pixel.red + img_pixel.red * mask->matrix[mask_i][mask_j];
+        new_pixel.green = new_pixel.green + img_pixel.green * mask->matrix[mask_i][mask_j];
+        new_pixel.blue = new_pixel.blue + img_pixel.blue * mask->matrix[mask_i][mask_j];
+
+        mask_j++;
+        img_j++;
+
+        // Si se llega al final de una fila, pasar a la siguiente
+        if (img_j == j_max + 1) {
             mask_i++;
             img_i++;
             mask_j = 0;
-            img_j = h_min;
+            img_j = j_min;
         }
-        if (mask_i < mask->rows){
-            // Multiplicar cada canal del pixel por la cantidad indicada en la mascara y sumarlo al valor actual
-            new_pixel.gray = new_pixel.gray + img->pixel_matrix[img_i][img_j].gray * mask->matrix[mask_i][mask_j];
-            new_pixel.red = new_pixel.red + img->pixel_matrix[img_i][img_j].red * mask->matrix[mask_i][mask_j];
-            new_pixel.green = new_pixel.green + img->pixel_matrix[img_i][img_j].green * mask->matrix[mask_i][mask_j];
-            new_pixel.blue = new_pixel.blue + img->pixel_matrix[img_i][img_j].blue * mask->matrix[mask_i][mask_j];
-            new_pixel.alpha = new_pixel.alpha + img->pixel_matrix[img_i][img_j].alpha * mask->matrix[mask_i][mask_j];
-        }
-    }
+    } while (img_i <= i_max);
+
     *success = 1;
     Pixel unsigned_pixel;
     unsigned_pixel.gray = pixel_to_unsigned(new_pixel.gray);
