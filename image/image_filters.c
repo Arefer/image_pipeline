@@ -123,6 +123,27 @@ Image* laplacian_filter(Image* img, Mask* mask){
     return new_image;
 }
 
+/**
+ * Crea una copia de img y aplica el filtro de binarizacion.
+ * Esto es, para cada pixel de img: si pixel > threshold -> pixel = 255. En caso contrario, pixel = 0.
+ * Acepta solamente imagenes en gray scale.
+ * @param img imagen (Image*) a la cual se desea aplicar el filtro de binarizacion.
+ * @param threshold Umbral de binarizacion.
+ * @return Image* con la copia de img binarizada.
+ */
+Image* binarize_image(Image* img, uint8_t threshold){
+    if (img->type != GRAY_SCALE) return NULL;
+    Image* new_img = copy_image(img);
+    for (int i=0; i<new_img->height; i++){
+        for (int j=0; j<new_img->width; j++){
+            uint8_t* pixel = &new_img->pixel_matrix[i][j].gray;
+            *pixel = *pixel > threshold ? 255 : 0;
+        }
+    }
+    join_channels(new_img);
+    return new_img;
+}
+
 void free_mask(Mask* mask){
     for (int i = 0; i < mask->rows; i++){
         free(mask->matrix[i]);

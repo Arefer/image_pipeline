@@ -42,6 +42,7 @@ uint8_t pixel_to_unsigned(int p);
 Image* copy_image(Image* img);
 void separate_channels(Image* img);
 void join_channels(Image* img);
+int nearly_black(Image* img, double threshold);
 void save_image(const Image *img, const char *fname);
 void free_image(Image *img);
 #endif //IMAGE_PIPELINE_IMAGE_H

@@ -12,7 +12,8 @@
 void load_image(Image *img, const char *fname) {
     if((img->data = stbi_load(fname, &img->width, &img->height, &img->channels, 0)) != NULL) {
         img->size = img->width * img->height * img->channels;
-        if(str_ends_in(fname, ".jpg") || str_ends_in(fname, ".JPG") || str_ends_in(fname, ".jpeg") || str_ends_in(fname, ".JPEG")) {
+        if(str_ends_in(fname, ".jpg") || str_ends_in(fname, ".JPG") || str_ends_in(fname, ".jpeg") ||
+            str_ends_in(fname, ".JPEG")) {
             img->format = JPG;
             if (img->channels == 1) img->type = GRAY_SCALE;
             else img->type = RGB;
@@ -69,7 +70,7 @@ Image* copy_image(Image* img){
 }
 /**
  * Separa los canales de una imagen. Guarda los datos con una matriz de pixeles.
- * @param img = estructura (Image) que representa alpha la imagen
+ * @param img = estructura (Image) que representa a la imagen
  * Sin salida
  */
 void separate_channels(Image* img){
@@ -123,7 +124,7 @@ void separate_channels(Image* img){
 }
 /**
  * Libera el areglo data de la Imagen y reemplaza sus valores por los presentes en pixel_matrix.
- * @param img : imagen alpha procesar.
+ * @param img : imagen a procesar.
  * Sin salida.
  */
 void join_channels(Image* img){
@@ -161,6 +162,29 @@ void join_channels(Image* img){
         }
         column_index++;
     }
+}
+
+/**
+ * Concluye si img es "nearly_black". Esto es: si el porcentaje de pixeles negros es mayor o igual a threshold, entonces
+ * se concluye que la imagen es nearly_black, en caso contrario, no lo es.
+ * @param img imagen sobre la cual concluir si es nearly_black.
+ * @param threshold porcentaje de umbral, numero entre 0 y 100.
+ * @return 1 si la img es nearly_black. 0 si no img NO es nearly_black. -1 si img no es del tipo GRAY_SCALE.
+ */
+int nearly_black(Image* img, double threshold){
+    if (threshold < 0 || threshold > 100) return -1;
+    if (img->type != GRAY_SCALE) return -1;
+    int total = (int)img->size / img->channels;
+    int black_pixels = 0;
+    for (int i=0; i<img->height; i++){
+        for (int j=0; j<img->width; j++){
+            uint8_t pixel = img->pixel_matrix[i][j].gray;
+            if (pixel == 0) black_pixels++;
+        }
+    }
+    // calculo del porcentaje
+    double black_pixels_percentage = ((double)black_pixels / total) * 100;
+    return black_pixels_percentage >= threshold ? 1 : 0;
 }
 
 void save_image(const Image *img, const char *fname) {

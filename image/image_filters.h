@@ -14,5 +14,6 @@ typedef struct {
 Image* image_to_gray_scale(Image* img);
 Pixel mask_image_pixel(Image* img, int i, int j, Mask* mask, int* success);
 Image* laplacian_filter(Image* img, Mask* mask);
+Image* binarize_image(Image* img, uint8_t threshold);
 void free_mask(Mask* mask);
 #endif //IMAGE_PIPELINE_IMAGE_FILTERS_H
