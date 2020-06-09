@@ -1,7 +1,3 @@
-//
-// Created by keviin on 08-06-20.
-//
-
 #ifndef IMAGE_PIPELINE_IMAGE_PIPELINE_H
 #define IMAGE_PIPELINE_IMAGE_PIPELINE_H
 
