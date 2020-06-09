@@ -5,6 +5,10 @@
 #include "utils/utils.h"
 
 int main(int argc, char *argv[]){
+    if (argc == 2 && (strcmp(argv[1], "-h") == 0)){
+        print_usage();
+        return 0;
+    }
     int images, binarization_threshold;
     double nearly_black_threshold;
     char* mask_path = NULL;

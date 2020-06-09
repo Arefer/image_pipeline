@@ -11,9 +11,9 @@ void print_usage(){
     printf("Uso: image_pipeline -c <num_im> -u <umbral> -n <umbral> -m <path> [-b]\n");
     printf("Argumentos:\n");
     printf("    -c <num_im> : Numero de imagenes a procesar.\n");
-    printf("    -u <umbral> : Umbral de binarizacion.\n");
-    printf("    -n <umbral> : Umbral para clasificacion.\n");
-    printf("    -m <path>   : Ruta al archivo de la mascara.\n");
+    printf("    -u <umbral> : Umbral de binarizacion. Numero entre 0 y 255.\n");
+    printf("    -n <umbral> : Porcentaje para umbral de clasificacion. Numero entre 0 y 100\n");
+    printf("    -m <path>   : Ruta al archivo de la mascara. El archivo de la mascara debe ser de 3x3 enteros.\n");
     printf("    -b          : Mostrar resultados de clasificacion.\n");
 }
 
