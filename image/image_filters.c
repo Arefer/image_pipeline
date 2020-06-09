@@ -1,7 +1,3 @@
-//
-// Created by Kevin on 27-05-20.
-//
-
 #include "image.h"
 #include "image_filters.h"
 
@@ -145,6 +141,10 @@ Image* binarize_image(Image* img, uint8_t threshold){
     return new_img;
 }
 
+/**
+ * Libera la memoria de una mascara.
+ * @param mask : mascara a liberar.
+ */
 void free_mask(Mask* mask){
     for (int i = 0; i < mask->rows; i++){
         free(mask->matrix[i]);

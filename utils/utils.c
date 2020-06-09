@@ -1,8 +1,11 @@
-//
-// Created by keviin on 05-06-20.
-//
-
 #include "utils.h"
+
+/**
+ * Lee una mascara de 3x3 escrita en un archivo de texto.
+ * @param file_path : Ruta al archivo con la mascara.
+ * @param success : Para indicar exito (1) o error (0).
+ * @return Puntero a la mascara (Mask*) leida.
+ */
 Mask* read_mask(const char *file_path, int* success) {
     FILE* f = fopen(file_path, "r");
     if (f == NULL) return 0;
@@ -20,14 +23,14 @@ Mask* read_mask(const char *file_path, int* success) {
                    &mask->matrix[2][0], &mask->matrix[2][1], &mask->matrix[2][2]);
     if (count == EOF) {
         if (ferror(f)) {
-            perror("fscanf");
+            perror("Error de formato en el archivo\n");
             free(mask);
             fclose(f);
             *success = 0;
             return NULL;
         }
         else {
-            fprintf(stderr, "Error: fscanf reached end of file, no matching characters, no matching failure\n");
+            fprintf(stderr, "Error de formato en el archivo %s\n", file_path);
             free(mask);
             fclose(f);
             *success = 0;
@@ -35,7 +38,7 @@ Mask* read_mask(const char *file_path, int* success) {
         }
     }
     else if (count != 9) {
-        fprintf(stderr, "Error: fscanf successfully matched and assigned %i input items, 6 expected\n", count);
+        fprintf(stderr, "Error de formato en el archivo %s\n", file_path);
         free(mask);
         fclose(f);
         *success = 0;

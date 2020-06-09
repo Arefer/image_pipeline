@@ -1,5 +1,3 @@
-// https://github.com/sol-prog/tutorial_stb-image_library_examples
-
 #include "image.h"
 #include "../utils/utils.h"
 
@@ -8,6 +6,12 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../stb_image/stb_image_write.h"
 
+/**
+ * Lee una imagen desde el disco.
+ * @param img : puntero a Image en donde se van a guardar los pixeles.
+ * @param file_path : ruta al archivo con la imagen.
+ * No posee salida.
+ */
 void load_image(Image *img, const char *file_path) {
     uint8_t* data;
     if((data = stbi_load(file_path, &img->width, &img->height, &img->channels, 0)) != NULL) {
@@ -30,6 +34,11 @@ void load_image(Image *img, const char *file_path) {
     }
 }
 
+/**
+ * Asigna el valor 0 a todos los componentes de un pixel.
+ * @param p : Pixel al cual afectar.
+ * Sin salida.
+ */
 void set_pixel_to_zero(Pixel* p){
     p->gray = 0;
     p->red = 0;
@@ -38,12 +47,24 @@ void set_pixel_to_zero(Pixel* p){
     p->alpha = 0;
 }
 
+/**
+ * Normaliza un valor de un pixel.
+ * @param p : valor a normalizar
+ * @return : 0 si p < 0,
+ *           255 si p > 255,
+ *           p en cualquier otro caso.
+ */
 uint8_t pixel_to_unsigned(int p){
     if (p < 0) return 0;
     if (p > 255) return 255;
     return (uint8_t)p;
 }
 
+/**
+ * Copia la memoria de una imagen y la almacena en otra imagen Image.
+ * @param img : imagen a copiar.
+ * @return Puntero (Image*) a la copia de la imagen.
+ */
 Image* copy_image(Image* img){
     Image* new_image = (Image*)malloc(sizeof(Image));
     new_image->type = img->type;
@@ -180,20 +201,31 @@ int nearly_black(Image* img, double threshold){
     return black_pixels_percentage >= threshold ? 1 : 0;
 }
 
+/**
+ * Escribe una imagen en disco.
+ * @param img : Puntero a la imagen a escribir.
+ * @param file_path : Ruta donde escribir.
+ * Sin salidas.
+ */
 void save_image(Image *img, const char *file_path) {
     uint8_t* data = pixels_to_array(img);
-    // Check if the file name ends in one of the .jpg/.JPG/.jpeg/.JPEG or .png/.PNG
     if(img->format == JPG) {
         stbi_write_jpg(file_path, img->width, img->height, img->channels, data, 100);
     } else if(img->format == PNG) {
         stbi_write_png(file_path, img->width, img->height, img->channels, data, img->width * img->channels);
     } else {
         free(data);
-        ON_ERROR_EXIT(false, "");
+        printf("Error al escribir imagen %s\n", file_path);
+        exit(1);
     }
     free(data);
 }
 
+/**
+ * Libera la memoria de una imagen.
+ * @param img : Puntero a la imagen (Image*) a liberar.
+ * Sin salidas.
+ */
 void free_image(Image *img) {
     // Liberar la memoria de la matriz de pixeles
     if (img->pixel_matrix != NULL){
