@@ -38,8 +38,9 @@ int main(int argc, char *argv[]){
             strcpy(results[i].name, img_path_i);
             int r = pipeline(binarization_threshold, nearly_black_threshold, img_path_i, mask,
                              dest_img_path_i);
-            if (r) results[i].classification = NEARLY_BLACK;
-            else results[i].classification = NOT_NEARLY_BLACK;
+            if (r == 1) results[i].classification = NEARLY_BLACK;
+            else if (r == 0) results[i].classification = NOT_NEARLY_BLACK;
+            else { printf("Error al clasificar imagen '%s'. Posiblemente umbral incorrecto\n", img_path_i); return 1;}
         }
         if (show_result) print_results(results, images);
         for (int i=0; i<images; i++){

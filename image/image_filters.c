@@ -129,8 +129,8 @@ Image* laplace_filter(Image* img, Mask* mask){
  * @param threshold Umbral de binarizacion.
  * @return Image* con la copia de img binarizada.
  */
-Image* binarize_image(Image* img, uint8_t threshold){
-    if (img->type != GRAY_SCALE) return NULL;
+Image* binarize_image(Image* img, int threshold){
+    if (img->type != GRAY_SCALE || threshold < 0 || threshold > 255) return NULL;
     Image* new_img = copy_image(img);
     for (int i=0; i<new_img->height; i++){
         for (int j=0; j<new_img->width; j++){

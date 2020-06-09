@@ -127,7 +127,7 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
  * @param img_path : Ruta a la imagen en disco.
  * @param mask : Mascara para aplicar el filtro de Laplace.
  * @param dest_img_path : Ruta donde guardar la imagen binarizada resultante.
- * @return 1 en caso de que resulte nearly_black, 0 en caso contrario.
+ * @return 1 en caso de que resulte nearly_black, 0 en no nearly_black. -1 en caso de error.
  */
 int pipeline(int binarization_threshold, double nearly_black_threshold, char* img_path, Mask* mask, char* dest_img_path){
     // Lectura
@@ -146,6 +146,10 @@ int pipeline(int binarization_threshold, double nearly_black_threshold, char* im
 
     // Binarizacion
     Image* binarized_img = binarize_image(laplace_img, binarization_threshold);
+    if (binarized_img == NULL) {
+        printf("Error al binarizar imagen '%s'. Posiblemente el umbral sea incorrecto\n", img_path);
+        exit(-1);
+    }
     free_image(laplace_img);
     free(laplace_img);
 
