@@ -14,7 +14,7 @@ void print_usage(){
     printf("    -u <umbral> : Umbral de binarizacion.\n");
     printf("    -n <umbral> : Umbral para clasificacion.\n");
     printf("    -m <path>   : Ruta al archivo de la mascara.\n");
-    printf("    -b          : Mostrar resultados de clasificacion\n");
+    printf("    -b          : Mostrar resultados de clasificacion.\n");
 }
 
 /**
@@ -34,11 +34,11 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
     if (argc < 9){
         printf("Faltan argumentos\n");
         print_usage();
-        return 1;
+        return 0;
     } else if (argc > 10){
         printf("Demasiados argumentos\n");
         print_usage();
-        return 1;
+        return 0;
     }
 
     int option;
@@ -62,7 +62,7 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
         switch (option) {
             // Para cada uno de los argumentos leidos, comprobar que no sea repetido.
             case 'c':
-                if (contains(found_args, (char)option, argc) == 0){
+                if (contains(found_args, (char)option, 5) == 0){
                     found_args[found_args_i] = (char)option;
                     found_args_i++;
                     //printf("c, optarg:%s\n", optarg);
@@ -70,7 +70,7 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
                 }
                 break;
             case 'u':
-                if (contains(found_args, (char)option, argc) == 0){
+                if (contains(found_args, (char)option, 5) == 0){
                     found_args[found_args_i] = (char)option;
                     found_args_i++;
                     //printf("u, optarg:%s\n", optarg);
@@ -78,7 +78,7 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
                 }
                 break;
             case 'n':
-                if (contains(found_args, (char)option, argc) == 0){
+                if (contains(found_args, (char)option, 5) == 0){
                     found_args[found_args_i] = (char)option;
                     found_args_i++;
                     //printf("n, optarg:%s\n", optarg);
@@ -87,7 +87,7 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
                 }
                 break;
             case 'm':
-                if (contains(found_args, (char)option, argc) == 0){
+                if (contains(found_args, (char)option, 5) == 0){
                     found_args[found_args_i] = (char)option;
                     found_args_i++;
                     //printf("m, optarg:%s\n", optarg);
@@ -97,7 +97,7 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
                 }
                 break;
             case 'b':
-                if (contains(found_args, (char)option, argc) == 0){
+                if (contains(found_args, (char)option, 5) == 0){
                     found_args[found_args_i] = (char)option;
                     found_args_i++;
                     *verbose = 1;
@@ -107,8 +107,13 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
                 print_usage();
         }
     }
+    if (found_args_i == 4 && contains(found_args, 'b', 5)){
+        if (*mask_path != NULL) free(*mask_path);
+        print_usage();
+        return 0;
+    }
     if (found_args_i < 4){
-        if (mask_path != NULL) free(mask_path);
+        if (*mask_path != NULL) free(*mask_path);
         print_usage();
         return 0;
     }
@@ -198,10 +203,11 @@ int main(int argc, char *argv[]){
     Mask* mask = read_mask(mask_path, &mask_load_sucess);
     if (!mask_load_sucess){
         printf("Error al leer la mascara");
-        exit(1);
+        return 1;
     }
     if (images == 0){
         printf("Nada que procesar\n");
+        return 2;
     } else {
 
         Result* results = (Result*)malloc(sizeof(Result)*images);
