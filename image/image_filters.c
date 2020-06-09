@@ -1,6 +1,3 @@
-//
-// Created by Kevin on 27-05-20.
-//
 
 #include "image.h"
 #include "image_filters.h"

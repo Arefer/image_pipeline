@@ -1,7 +1,3 @@
-//
-// Created by keviin on 05-06-20.
-//
-
 #include "utils.h"
 Mask* read_mask(const char *file_path, int* success) {
     FILE* f = fopen(file_path, "r");
