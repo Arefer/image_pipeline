@@ -1,5 +1,5 @@
 //
-// Created by keviin on 27-05-20.
+// Created by Kevin on 27-05-20.
 //
 
 #include "image.h"
@@ -111,7 +111,7 @@ Pixel mask_image_pixel(Image* img, int i, int j, Mask* mask, int* success){
  * @param mask mascara de filtro laplaciano.
  * @return Puntero a una nueva imagen filtrada (Image*).
  */
-Image* laplacian_filter(Image* img, Mask* mask){
+Image* laplace_filter(Image* img, Mask* mask){
     Image* new_image = copy_image(img);
     int success = 0;
     for (int i = 0; i < img->height; i++){

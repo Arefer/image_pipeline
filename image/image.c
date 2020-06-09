@@ -1,8 +1,7 @@
 // https://github.com/sol-prog/tutorial_stb-image_library_examples
 
 #include "image.h"
-#include "../utils.h"
-#include <math.h>
+#include "../utils/utils.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image/stb_image.h"
@@ -25,6 +24,9 @@ void load_image(Image *img, const char *file_path) {
         }
         data_to_pixels(img, data);
         free(data);
+    } else {
+        printf("Error al abrir imagen: %s\n", file_path);
+        exit(1);
     }
 }
 
