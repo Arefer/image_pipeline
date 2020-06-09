@@ -1,6 +1,6 @@
 #ifndef IMAGE_PIPELINE_IMAGE_PIPELINE_H
 #define IMAGE_PIPELINE_IMAGE_PIPELINE_H
-
+#include "image/image_filters.h"
 enum Image_classification {NEARLY_BLACK, NOT_NEARLY_BLACK};
 
 typedef struct {
@@ -13,6 +13,5 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
         double* nearly_black_threshold, char** mask_path, int* verbose);
 int pipeline(int binarization_threshold, double nearly_black_threshold, char* img_path, Mask* mask, char* dest_img_path);
 void print_results(Result* results, int res_size);
-int main(int argc, char *argv[]);
 
 #endif //IMAGE_PIPELINE_IMAGE_PIPELINE_H
