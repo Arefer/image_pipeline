@@ -1,6 +1,8 @@
 # Descarga y compilación
 `git clone https://github.com/Arefer/image_pipeline.git`
+
 `cd image_pipeline`
+
 `make all`
 
 # USO
