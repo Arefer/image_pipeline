@@ -1,9 +1,8 @@
 # Descarga y compilación
-`git clone https://github.com/Arefer/image_pipeline.git`
 
-`cd image_pipeline`
-
-`make all`
+    $ git clone https://github.com/Arefer/image_pipeline.git
+    $ cd image_pipeline
+    $ make all
 
 # USO
 `./image_pipeline -c <num_im> -u <umbral> -n <umbral> -m <path> [-b]`
