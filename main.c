@@ -31,10 +31,10 @@ int main(int argc, char *argv[]){
         for (int i=0; i<images; i++){
             char img_path_i[200];
             char dest_img_path_i[200];
-            sprintf(img_path_i, "%s_%d.jpeg", img_path, i+1);
+            sprintf(img_path_i, "%s_%d.jpg", img_path, i+1);
             img_path_i[strlen(img_path_i)] = '\0';
             results[i].name = (char*)malloc(sizeof(char)*(strlen(img_path_i)+1));
-            sprintf(dest_img_path_i, "%s_%d_bin.jpeg", img_path, i+1);
+            sprintf(dest_img_path_i, "%s_%d_bin.jpg", img_path, i+1);
             strcpy(results[i].name, img_path_i);
             int r = pipeline(binarization_threshold, nearly_black_threshold, img_path_i, mask,
                              dest_img_path_i);

@@ -16,8 +16,8 @@ Argumentos:
     -b          : Mostrar resultados de clasificacion.
 
 # Etapa 1 - Lectura
-Las imagenes estaran almacenadas en binario con formato jpeg.  Habran n imagenes y sus nombres tendran el mismo prefijo 
-seguido de un numero correlativo.  Es decir,  los nombres seran `imagen_1`,  `imagen_2`, ..., `imagen_i`, ... ,`imagen_n`.
+Las imagenes estaran almacenadas en binario con formato jpg.  Habran n imagenes y sus nombres tendran el mismo prefijo 
+seguido de un numero correlativo.  Es decir,  los nombres seran `imagen_1.jpg`,  `imagen_2.jpg`, ..., `imagen_i.jpg`, ... ,`imagen_n.jpg`.
 
 ![Screenshot](resources/readme_resources/images.png)
 
