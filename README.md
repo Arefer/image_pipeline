@@ -38,7 +38,7 @@ entonces se clasifica la imagen como "Nearly black".
 ![Screenshot](resources/readme_resources/results.png)
 
 # Etapa 6 - Escritura en disco
-Se escribe la imagen resultante en la etapa 4 en la ruta `imagen_i.bin.jpeg`.
+Se escribe la imagen resultante en la etapa 4 en la ruta `imagen_i_bin.jpeg`.
 
 ![Screenshot](resources/Images/imagen_3.jpeg) ![Screenshot](resources/Images/imagen_3_bin.jpeg)
 
