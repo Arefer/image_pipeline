@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-c -Wall -lm -g
 
-all: image_pipeline
+all: image_pipeline lecture
 
 image/obj/image.o: image/image.c image/image.h
 	if [ ! -d "image/obj" ]; then mkdir image/obj; fi
@@ -22,8 +22,15 @@ obj/image_pipeline.o: image_pipeline.c image_pipeline.h
 image_pipeline: image/obj/image.o image/obj/image_filters.o utils/obj/utils.o obj/image_pipeline.o
 	$(CC) image/obj/image.o image/obj/image_filters.o utils/obj/utils.o obj/image_pipeline.o main.c -o image_pipeline -lm -g
 
+lecture: image/obj/image.o image/obj/image_filters.o utils/obj/utils.o obj/image_pipeline.o
+	$(CC) image/obj/image.o image/obj/image_filters.o utils/obj/utils.o obj/image_pipeline.o lecture.c -o lecture -lm -g
+
+ 
+
 clear:
 	if [ -d image/obj ]; then rm -r image/obj; fi
 	if [ -d utils/obj ]; then rm -r utils/obj; fi
 	if [ -d obj ]; then rm -r obj; fi
 	if [ -f image_pipeline ]; then rm image_pipeline; fi
+	if [ -f lecture ]; then rm lecture; fi
+

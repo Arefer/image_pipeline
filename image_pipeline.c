@@ -120,6 +120,45 @@ int get_arguments(int argc, char **argv, int* number_of_images, int* binarizatio
     return 1;
 }
 
+void lecture_stage(Image* img, char* img_path){
+    img = (Image*)malloc(sizeof(Image));
+    load_image(img, img_path);
+}
+
+Image* gray_scale_stage(Image* img){
+    Image* gray_scale_img = image_to_gray_scale(img);
+    free_image(img);
+    free(img);
+    return gray_scale_img;
+}
+
+Image* laplace_img_stage(Image* gray_scale_img, Mask* mask){
+    Image* laplace_img = laplace_filter(gray_scale_img, mask);
+    free_image(gray_scale_img);
+    free(gray_scale_img);
+    return laplace_img;
+}
+
+Image* binarize_stage(Image* laplace_img, int binarization_threshold, char* img_path){
+    Image* binarized_img = binarize_image(laplace_img, binarization_threshold);
+    if (binarized_img == NULL) {
+        printf("Error al binarizar imagen '%s'. Posiblemente el umbral sea incorrecto\n", img_path);
+        exit(-1);
+    }
+    free_image(laplace_img);
+    free(laplace_img);
+    return binarized_img;
+}
+
+int classification_stage(Image* binarized_img, char*dest_img_path, double nearly_black_threshold){
+    save_image(binarized_img, dest_img_path);
+
+    int nb = nearly_black(binarized_img, nearly_black_threshold);
+    free_image(binarized_img);
+    free(binarized_img);
+    return nb;
+}
+
 /**
  * Procesa una imagen
  * @param binarization_threshold : valor entre 0 y 255 para binarizar la imagen.
