@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
     Image* img;
     int status;
     read(STDIN_FILENO,img,sizeof(Image*));
-    fprintf(stderr,img);
     int fd[2];
     if(pipe(fd) < 0)
     {

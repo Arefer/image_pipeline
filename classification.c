@@ -16,9 +16,8 @@
 int main(int argc, char *argv[])
 {
     Image* img;
-    int pid, status;
-    int mask_load_sucess = 0;
-    Mask* mask = read_mask(argv[2], &mask_load_sucess);
+    int pid, status, nb;
+    char* classification;
     read(STDIN_FILENO,img,sizeof(Image*));
     int fd[2];
     if(pipe(fd) < 0)
@@ -30,15 +29,18 @@ int main(int argc, char *argv[])
     if(pid > 0)
     {
         close(fd[READ]);
-        img = binarize_stage(img, atoi(argv[1]),argv[1]);
-        free(mask);
-        write(fd[WRITE],img,sizeof(Image*));
+        nb = classification_stage(img,argv[1],(double)atoi(argv[2]));
+        if (nb == 1) classification = "NEARLY_BLACK";
+            else if (nb == 0) classification = "NOT_NEARLY_BLACK";
+            else { printf("Error al clasificar imagen '%s'. Posiblemente umbral incorrecto\n", argv[1]); return 1;}
+        write(fd[WRITE],classification,100);
+
     }
     else if(pid == 0)
     {
         close(fd[WRITE]);
         dup2(fd[READ],STDIN_FILENO);
-        execl("clasification","clasification",NULL);
+        execl("write","write",NULL);
         fprintf(stderr,"Fallo execl\n");
         exit(0);
     }

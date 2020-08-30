@@ -18,5 +18,6 @@ Image* binarize_stage(Image* laplace_img, int binarization_threshold, char* img_
 int classification_stage(Image* binarized_img, char*dest_img_path, double nearly_black_threshold);        
 int pipeline(int binarization_threshold, double nearly_black_threshold, char* img_path, Mask* mask, char* dest_img_path);
 void print_results(Result* results, int res_size);
+void print_pipe_results();
 
 #endif //IMAGE_PIPELINE_IMAGE_PIPELINE_H
