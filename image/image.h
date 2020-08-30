@@ -30,6 +30,7 @@ typedef struct {
     int height;
     int channels;
     size_t size;
+    char* name;
     Pixel** pixel_matrix;
 } Image;
 

@@ -1,25 +1,33 @@
 CC=gcc
 CFLAGS=-c -Wall -lm -g
 
-all: image_pipeline
+all: bin/gray_scale bin/load_image image_pipeline
 
 image/obj/image.o: image/image.c image/image.h
 	if [ ! -d "image/obj" ]; then mkdir image/obj; fi
-	$(CC) $(CFLAGS) image/image.c -o image/obj/image.o -g
+	$(CC) $(CFLAGS) image/image.c -o image/obj/image.o
 
 image/obj/image_filters.o: image/image_filters.c image/image_filters.h
 	if [ ! -d "image/obj" ]; then mkdir image/obj; fi
-	$(CC) $(CFLAGS) image/image_filters.c -o image/obj/image_filters.o -g
+	$(CC) $(CFLAGS) image/image_filters.c -o image/obj/image_filters.o
 
 utils/obj/utils.o: utils/utils.c utils/utils.h
 	if [ ! -d "utils/obj" ]; then mkdir utils/obj; fi
-	$(CC) $(CFLAGS) utils/utils.c -o utils/obj/utils.o -g
+	$(CC) $(CFLAGS) utils/utils.c -o utils/obj/utils.o
 
 obj/image_pipeline.o: image_pipeline.c image_pipeline.h
 	if [ ! -d "obj" ]; then mkdir obj; fi
-	$(CC) $(CFLAGS) image_pipeline.c -o obj/image_pipeline.o -g
+	$(CC) $(CFLAGS) image_pipeline.c -o obj/image_pipeline.o
 
-image_pipeline: image/obj/image.o image/obj/image_filters.o utils/obj/utils.o obj/image_pipeline.o
+bin/load_image: image/load_image.c image/obj/image.o
+	if [ ! -d "bin" ]; then mkdir bin; fi
+	$(CC) image/obj/image.o image/load_image.c -o bin/load_image -g -lm
+
+bin/gray_scale: image/gray_scale.c image/obj/image.o image/obj/image_filters.o
+	if [ ! -d "bin" ]; then mkdir bin; fi
+	$(CC) image/obj/image.o image/obj/image_filters.o image/gray_scale.c -o bin/gray_scale -g -lm
+
+image_pipeline: image/obj/image.o image/obj/image_filters.o utils/obj/utils.o obj/image_pipeline.o main.c
 	$(CC) image/obj/image.o image/obj/image_filters.o utils/obj/utils.o obj/image_pipeline.o main.c -o image_pipeline -lm -g
 
 clear:
@@ -27,3 +35,5 @@ clear:
 	if [ -d utils/obj ]; then rm -r utils/obj; fi
 	if [ -d obj ]; then rm -r obj; fi
 	if [ -f image_pipeline ]; then rm image_pipeline; fi
+	if [ -d bin ] ; then rm -r bin; fi
+
