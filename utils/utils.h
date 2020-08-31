@@ -69,5 +69,8 @@ static inline int string_center(char* s, int size, int* left_margin, int* right_
 static void inline print_n_chars(char c, int n){
     for (int i=0; i<n; i++) printf("%c", c);
 }
+static void inline print_n_chars_stderr(char c, int n){
+    for (int i=0; i<n; i++) fprintf(stderr,"%c", c);
+}
 Mask* read_mask(const char *file_path, int* success);
 #endif //IMAGE_PIPELINE_UTILS_H

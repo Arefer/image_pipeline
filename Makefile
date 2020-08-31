@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-c -Wall -lm -g
 
-all: bin/gray_scale bin/load_image image_pipeline
+all: bin/save bin/nearly_black bin/binarize bin/gray_scale bin/load_image image_pipeline
 
 image/obj/image.o: image/image.c image/image.h
 	if [ ! -d "image/obj" ]; then mkdir image/obj; fi
@@ -27,8 +27,20 @@ bin/gray_scale: image/gray_scale.c image/obj/image.o image/obj/image_filters.o
 	if [ ! -d "bin" ]; then mkdir bin; fi
 	$(CC) image/obj/image.o image/obj/image_filters.o image/gray_scale.c -o bin/gray_scale -g -lm
 
+bin/binarize: image/binarize.c image/obj/image.o image/obj/image_filters.o
+	if [ ! -d "bin" ]; then mkdir bin; fi
+	$(CC) image/obj/image.o image/obj/image_filters.o image/binarize.c -o bin/binarize -g -lm
+
+bin/nearly_black: image/nearly_black.c image/obj/image.o image/obj/image_filters.o
+	if [ ! -d "bin" ]; then mkdir bin; fi
+	$(CC) image/obj/image.o image/obj/image_filters.o image/nearly_black.c -o bin/nearly_black -g -lm
+
 image_pipeline: image/obj/image.o image/obj/image_filters.o utils/obj/utils.o obj/image_pipeline.o main.c
 	$(CC) image/obj/image.o image/obj/image_filters.o utils/obj/utils.o obj/image_pipeline.o main.c -o image_pipeline -lm -g
+
+bin/save: image/save.c image/obj/image.o image/obj/image_filters.o obj/image_pipeline.o
+	if [ ! -d "bin" ]; then mkdir bin; fi
+	$(CC) image/obj/image.o image/obj/image_filters.o obj/image_pipeline.o image/save.c -o bin/save -g -lm
 
 clear:
 	if [ -d image/obj ]; then rm -r image/obj; fi

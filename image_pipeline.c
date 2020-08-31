@@ -193,3 +193,17 @@ void print_results(Result* results, int res_size){
         printf("+"); print_n_chars('-', image_column_size); printf("+"); print_n_chars('-', nearly_black_column_size); printf("+\n");
     }
 }
+
+void print_pipe_results(char* img_path, char* classification){
+    int image_column_size = (int)strlen(img_path)+6;
+    int nearly_black_column_size = 16;
+    int left_margin = 0, right_margin = 0;
+    char ans[20];
+    fprintf(stderr,"|");
+    if (strcmp(classification,"NEARLY_BLACK") == 0) strcpy(ans, "NEARLY BLACK\0");
+    else strcpy(ans, "NOT NEARLY BLACK\0");
+    string_center(img_path, image_column_size, &left_margin, &right_margin);
+    print_n_chars_stderr(' ', left_margin); fprintf(stderr,"%s", img_path); print_n_chars_stderr(' ', right_margin); fprintf(stderr,"|");
+    string_center(ans, nearly_black_column_size, &left_margin, &right_margin);
+    print_n_chars_stderr(' ', left_margin); printf("%s", ans); print_n_chars_stderr(' ', right_margin); fprintf(stderr,"|");
+}
