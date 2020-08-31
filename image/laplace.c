@@ -1,3 +1,7 @@
+//
+// Created by kevin on 8/29/20.
+//
+
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -6,8 +10,10 @@
 #include <unistd.h>
 #include "image.h"
 #include "image_filters.h"
+#include "../utils/utils.h"
 
 int main(int argc, char *argv[]) {
+    
     int image_type = atoi(argv[1]);
     int image_format = atoi(argv[2]);
     int width = atoi(argv[3]);
@@ -45,7 +51,17 @@ int main(int argc, char *argv[]) {
 
     data_to_pixels(img, data);
     free(data);
-    Image* gray_scaled_image = image_to_gray_scale(img);
+
+
+
+    int mask_load_sucess = 0;
+    Mask* mask = read_mask(mask_path, &mask_load_sucess);
+    if (!mask_load_sucess){
+        printf("Error al leer la mascara\n");
+        return 1;
+    }
+
+    Image* laplace_image = laplace_filter(img,mask);
 
     if ((pid = fork()) == -1){
         printf("Error en syscall fork");
@@ -57,21 +73,20 @@ int main(int argc, char *argv[]) {
         dup2(pipe_fds[0], STDIN_FILENO);
         close(pipe_fds[1]);
         char str_image_type[10];
-        sprintf(str_image_type, "%d", (int)gray_scaled_image->type);
+        sprintf(str_image_type, "%d", (int)laplace_image->type);
         char str_image_format[10];
-        sprintf(str_image_format, "%d", (int)gray_scaled_image->format);
+        sprintf(str_image_format, "%d", (int)laplace_image->format);
         char str_width[10];
-        sprintf(str_width, "%d", gray_scaled_image->width);
+        sprintf(str_width, "%d", laplace_image->width);
         char str_height[10];
-        sprintf(str_height, "%d", gray_scaled_image->height);
+        sprintf(str_height, "%d", laplace_image->height);
         char str_channels[10];
-        sprintf(str_channels, "%d", gray_scaled_image->channels);
+        sprintf(str_channels, "%d", laplace_image->channels);
         char str_size[10];
-        sprintf(str_size, "%zu", gray_scaled_image->size);
+        sprintf(str_size, "%zu", laplace_image->size);
 
-
-        execl("bin/laplace",
-              "bin/laplace",
+        execl("bin/binarize",
+              "bin/binarize",
               str_image_type,
               str_image_format,
               str_width,
@@ -82,10 +97,8 @@ int main(int argc, char *argv[]) {
               c,
               u,
               n,
-              mask_path,
               b,
               (char*)NULL);
-
 
         /* uint8_t* reading = (uint8_t*)malloc(sizeof(uint8_t)*size);
         //dup2(pipe_fds[0], STDIN_FILENO);
@@ -106,19 +119,19 @@ int main(int argc, char *argv[]) {
         //char name[50];
         //sprintf(name, "%s_gray_scale.jpg", image_name);
         //save_image(gray_scaled_image, name);
-        uint8_t* gray_scaled_data = pixels_to_array(gray_scaled_image);
+        uint8_t* laplace_data = pixels_to_array(laplace_image);
         //printf("%d\n", size);
         for (size_t i = 0; i < size; i++){
-            write(pipe_fds[1], &gray_scaled_data[i], sizeof(uint8_t));
+            write(pipe_fds[1], &laplace_data[i], sizeof(uint8_t));
         }
         close(pipe_fds[1]);
-        free(gray_scaled_data);
+        free(laplace_data);
     }
     wait(NULL);
     free_image(img);
     free(img);
-    free_image(gray_scaled_image);
-    free(gray_scaled_image);
+    free_image(laplace_image);
+    free(laplace_image);
 
     exit(0);
 }

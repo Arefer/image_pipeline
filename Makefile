@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-c -Wall -lm -g
 
-all: bin/save bin/nearly_black bin/binarize bin/gray_scale bin/load_image image_pipeline
+all: bin/save bin/nearly_black bin/binarize bin/laplace bin/gray_scale bin/load_image image_pipeline
 
 image/obj/image.o: image/image.c image/image.h
 	if [ ! -d "image/obj" ]; then mkdir image/obj; fi
@@ -26,6 +26,10 @@ bin/load_image: image/load_image.c image/obj/image.o
 bin/gray_scale: image/gray_scale.c image/obj/image.o image/obj/image_filters.o
 	if [ ! -d "bin" ]; then mkdir bin; fi
 	$(CC) image/obj/image.o image/obj/image_filters.o image/gray_scale.c -o bin/gray_scale -g -lm
+
+bin/laplace: image/laplace.c image/obj/image.o image/obj/image_filters.o utils/obj/utils.o
+	if [ ! -d "bin" ]; then mkdir bin; fi
+	$(CC) image/obj/image.o image/obj/image_filters.o utils/obj/utils.o image/laplace.c -o bin/laplace -g -lm
 
 bin/binarize: image/binarize.c image/obj/image.o image/obj/image_filters.o
 	if [ ! -d "bin" ]; then mkdir bin; fi

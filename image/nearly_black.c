@@ -22,9 +22,9 @@ int main(int argc, char *argv[])
     int height = atoi(argv[4]);
     int channels = atoi(argv[5]);
     char* image_name = argv[7];
-    int c = atoi(argv[8]);
-    int u = atoi(argv[9]);
-    int n = atoi(argv[10]);
+    char* c = argv[8];
+    char* u = argv[9];
+    char* n = argv[10];
     //char* mask_path = argv[11];
     char* b = argv[11];
 
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
     // Se realiza la clasificacion
 
-    int nb = nearly_black(img, (double)n);
+    int nb = nearly_black(img, (double)atoi(n));
     
 
     pid = fork();
@@ -93,6 +93,8 @@ int main(int argc, char *argv[])
         sprintf(str_channels, "%d", img->channels);
         char str_size[10];
         sprintf(str_size, "%zu", img->size);
+        char str_nb[10];
+        sprintf(str_nb, "%d", nb);
 
         execl("bin/save",
               "bin/save",
@@ -103,10 +105,11 @@ int main(int argc, char *argv[])
               str_channels,
               str_size,
               image_name,
-              nb,
+              str_nb,
               b,
               (char*)NULL);
     
+        fprintf(stderr,"Hola %d\n",nb);
         fprintf(stderr,"Fallo execl\n");
         exit(0);
     }

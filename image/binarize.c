@@ -15,18 +15,18 @@
 
 int main(int argc, char *argv[])
 {
-    int size = atoi(argv[1]);
-    int image_type = atoi(argv[4]);
-    int image_format = atoi(argv[5]);
-    int width = atoi(argv[2]);
-    int height = atoi(argv[3]);
+    int size = atoi(argv[6]);
+    int image_type = atoi(argv[1]);
+    int image_format = atoi(argv[2]);
+    int width = atoi(argv[3]);
+    int height = atoi(argv[4]);
     int channels = atoi(argv[5]);
-    char* image_name = argv[10];
-    int c = atoi(argv[6]);
-    int u = atoi(argv[7]);
-    int n = atoi(argv[8]);
+    char* image_name = argv[7];
+    char* c = argv[8];
+    char* u = argv[9];
+    char* n = argv[10];
     //char* mask_path = argv[11];
-    char* b = argv[9];
+    char* b = argv[11];
 
     pid_t pid;
     int status;
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
     // Se realiza la binarizacion
 
-    Image* binarized_img = binarize_image(img, atoi(argv[1]));
+    Image* binarized_img = binarize_image(img, atoi(u));
     if (binarized_img == NULL) {
     printf("Error al binarizar imagen '%s'. Posiblemente el umbral sea incorrecto\n", image_name);
     exit(-1);
@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
         char str_size[10];
         sprintf(str_size, "%zu", binarized_img->size);
 
-        execl("bin/gray_scale",
+        execl("bin/nearly_black",
               "bin/nearly_black",
               str_image_type,
               str_image_format,
@@ -112,7 +112,10 @@ int main(int argc, char *argv[])
               n,
               b,
               (char*)NULL);
-    
+
+        char name[50];
+        sprintf(name, "%s_binarized.jpg", image_name);
+        save_image(binarized_img, name);
         fprintf(stderr,"Fallo execl\n");
         exit(0);
     }
