@@ -7,6 +7,9 @@
 #include "image/image_filters.h"
 #include "utils/utils.h"
 
+// Inicio del pipeline donde se toman los argumentos, se inician variables
+// y ademas se crea el primer hijo que leera la imagen
+
 int main(int argc, char *argv[]){
     if (argc == 2 && (strcmp(argv[1], "-h") == 0)){
         print_usage();

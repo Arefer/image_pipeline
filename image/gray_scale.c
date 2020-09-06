@@ -7,6 +7,8 @@
 #include "image.h"
 #include "image_filters.h"
 
+// Etapa de escalado de grises en el pipeline
+
 int main(int argc, char *argv[]) {
     int image_type = atoi(argv[1]);
     int image_format = atoi(argv[2]);
@@ -21,7 +23,7 @@ int main(int argc, char *argv[]) {
     char* mask_path = argv[11];
     char* b = argv[12];
 
-    int pipe_fds[2];
+    int pipe_fds[2]; // pipe
     pid_t pid;
     if (pipe(pipe_fds) == -1){
         printf("Error en syscall pipe\n");
@@ -31,6 +33,10 @@ int main(int argc, char *argv[]) {
     // Leer desde stdin el arreglo data de la imagen
     uint8_t* data = malloc(sizeof(uint8_t)*size);
     int i = 0;
+    // Al leer la imagen desde el pipe que viene del proceso anterior se hace lo mismo que se hizo para escribir los datos del pipe, pero esta vez leyendo
+    // es decir, con un ciclo while, uno a uno se leen los datos desde el pipe y se guarda en el arreglo data para despues por medio de funciones
+    // volver a armar la imagen para procesarla y una vez se haga esto se vuelve a descomponer para pasar a la siguiente etapa y asi en todas las etapas en las
+    // que se debe pasar la informacion de la imagen
     while (i < size){
         read(STDIN_FILENO, &data[i], sizeof(uint8_t));
         i++;
@@ -70,6 +76,7 @@ int main(int argc, char *argv[]) {
         sprintf(str_size, "%zu", gray_scaled_image->size);
 
 
+        // Se pasa a el archivo que realiza laplace
         execl("bin/laplace",
               "bin/laplace",
               str_image_type,

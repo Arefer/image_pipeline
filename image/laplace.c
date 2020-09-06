@@ -12,6 +12,8 @@
 #include "image_filters.h"
 #include "../utils/utils.h"
 
+// Etapa en la que se termina de aplicar la convolucion 
+
 int main(int argc, char *argv[]) {
     
     int image_type = atoi(argv[1]);
@@ -52,8 +54,8 @@ int main(int argc, char *argv[]) {
     data_to_pixels(img, data);
     free(data);
 
-
-
+    
+    // Se carga la mascara con la direccion ingresada
     int mask_load_sucess = 0;
     Mask* mask = read_mask(mask_path, &mask_load_sucess);
     if (!mask_load_sucess){
@@ -61,6 +63,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    // Se aplica el filtro de laplace
     Image* laplace_image = laplace_filter(img,mask);
 
     if ((pid = fork()) == -1){
@@ -85,6 +88,7 @@ int main(int argc, char *argv[]) {
         char str_size[10];
         sprintf(str_size, "%zu", laplace_image->size);
 
+        //Se pasa a la etapa de binarizacion
         execl("bin/binarize",
               "bin/binarize",
               str_image_type,
@@ -99,18 +103,7 @@ int main(int argc, char *argv[]) {
               n,
               b,
               (char*)NULL);
-
-        /* uint8_t* reading = (uint8_t*)malloc(sizeof(uint8_t)*size);
-        //dup2(pipe_fds[0], STDIN_FILENO);
-        close(pipe_fds[1]);
-        int i=0;
-        while (i < size){
-            read(pipe_fds[0], &reading[i], sizeof(uint8_t));
-            //printf("i=%d . Lei '%u' desde mi padre %d\n", i, reading[i], getppid());
-            i++;
-            //printf("%d\n", size);
-        }
-        free(reading); */
+              
         exit(0);
     }
     else{ // Padre

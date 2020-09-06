@@ -13,6 +13,7 @@
 #define WRITE 1
 #define STDOUT 1
 
+// Etapa de escritura de resultados
 
 int main(int argc, char *argv[])
 {
@@ -24,7 +25,6 @@ int main(int argc, char *argv[])
     int channels = atoi(argv[5]);
     char* image_name = argv[7];
     int nb = atoi(argv[8]);
-    //char* mask_path = argv[11];
     char* b = argv[9];
 
     uint8_t* data = malloc(sizeof(uint8_t)*size);
@@ -46,13 +46,16 @@ int main(int argc, char *argv[])
     data_to_pixels(img, data);
     free(data);
 
-    fprintf(stderr,"Hola final %s\n",image_name);
 
     char dest_img_path[200];
     sprintf(dest_img_path, "%s_bin.jpg", image_name);
 
+
+
+    // Se escriben los resultados del proceso
     save_image(img, dest_img_path);
 
+    // En caso de que se levante la bandera de display de resultados
     if(strcmp("-b",b) == 0){
       print_pipe_results(image_name,nb);  
     } 

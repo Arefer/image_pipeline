@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
     pid_t pid;
     int status;
-    int fd[2];
+    int fd[2]; // pipe
     if(pipe(fd) < 0)
     {
         fprintf(stderr,"Error en syscall pipe\n");
@@ -96,6 +96,7 @@ int main(int argc, char *argv[])
         char str_nb[10];
         sprintf(str_nb, "%d", nb);
 
+        // Se pasa a la etapa final del pipeline en la que se escriben los resultados
         execl("bin/save",
               "bin/save",
               str_image_type,
@@ -109,7 +110,6 @@ int main(int argc, char *argv[])
               b,
               (char*)NULL);
     
-        fprintf(stderr,"Hola %d\n",nb);
         fprintf(stderr,"Fallo execl\n");
         exit(0);
     }

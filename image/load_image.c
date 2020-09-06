@@ -10,6 +10,8 @@
 #include <unistd.h>
 #include "image.h"
 
+// Etapa de lectura de pipeline
+
 int main(int argc, char *argv[]) {
     char* c = argv[1];
     char* u = argv[2];
@@ -17,9 +19,9 @@ int main(int argc, char *argv[]) {
     char* mask_path = argv[4];
     char* b = argv[5];
 
+    // Se carga la imagen
     char img_path[50];
     scanf("%s", img_path);
-    printf("%s\n", img_path);
     Image* img = (Image*)malloc(sizeof(Image));
     load_image(img, img_path);
     uint8_t* data = pixels_to_array(img);
@@ -30,7 +32,7 @@ int main(int argc, char *argv[]) {
         printf("Error en syscall pipe\n");
         exit(-1);
     }
-
+     // Se crea el proceso hijo
     if ((pid = fork()) == -1){
         printf("Error en syscall fork");
         exit(-1);
@@ -52,6 +54,7 @@ int main(int argc, char *argv[]) {
         char str_size[10];
         sprintf(str_size, "%zu", img->size);
 
+        // Se le da paso a la siguiente etapa de escala de grises
         execl("bin/gray_scale",
               "bin/gray_scale",
               str_image_type,
@@ -71,6 +74,8 @@ int main(int argc, char *argv[]) {
     else{ // Padre
         //dup2(pipe_fds[1], STDOUT_FILENO);
         close(pipe_fds[0]);
+        // Para escribir los datos de la imagen en el pipe lo que se hace es ir escribiendo uno a uno ls valores de la data de los pixeles en el pipe, esto es en todas las
+        // etapas del pipeline
         for (int i=0; i<img->size; i++){
             write(pipe_fds[1], &data[i], sizeof(uint8_t));
         }

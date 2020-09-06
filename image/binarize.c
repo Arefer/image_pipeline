@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
     pid_t pid;
     int status;
-    int fd[2];
+    int fd[2];// pipe
     if(pipe(fd) < 0)
     {
         fprintf(stderr,"Error en syscall pipe\n");
@@ -98,6 +98,8 @@ int main(int argc, char *argv[])
         char str_size[10];
         sprintf(str_size, "%zu", binarized_img->size);
 
+
+        // Se pasa a la etapa de clasificacion
         execl("bin/nearly_black",
               "bin/nearly_black",
               str_image_type,
