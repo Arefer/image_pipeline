@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
     char* mask_path = NULL;
     int show_result = 0;
     char str_show_result[10] = "";
-    char img_path[100] = "resources/Images/imagen\0";
+    char img_path[100] = "imagen\0";
     if (!get_arguments(argc, argv, &images, &binarization_threshold, &nearly_black_threshold, &mask_path, &show_result)) {
         return 1;
     }

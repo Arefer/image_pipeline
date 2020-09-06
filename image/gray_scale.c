@@ -93,18 +93,6 @@ int main(int argc, char *argv[]) {
               b,
               (char*)NULL);
 
-
-        /* uint8_t* reading = (uint8_t*)malloc(sizeof(uint8_t)*size);
-        //dup2(pipe_fds[0], STDIN_FILENO);
-        close(pipe_fds[1]);
-        int i=0;
-        while (i < size){
-            read(pipe_fds[0], &reading[i], sizeof(uint8_t));
-            //printf("i=%d . Lei '%u' desde mi padre %d\n", i, reading[i], getppid());
-            i++;
-            //printf("%d\n", size);
-        }
-        free(reading); */
         exit(0);
     }
     else{ // Padre
